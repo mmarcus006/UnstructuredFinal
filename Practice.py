@@ -9,22 +9,48 @@ from get_onedrive_path import get_onedrive_path
 import logging
 import openpyxl
 import re
+import os
+import re
+import logging
+import pandas as pd
+import pytesseract
+from pathlib import Path
+from unstructured.partition.pdf import partition_pdf  # Assuming this is the correct import
+from io import StringIO
+
+
 class PDFProcessor:
     def __init__(self, base_path):
         self.base_path = base_path
+        self.error_files = self.load_error_files('processing_errors.log')
         pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
         logging.basicConfig(filename='processing_errors.log', level=logging.ERROR)
+
+    def load_error_files(self, log_file_path):
+        error_files = set()
+        if os.path.exists(log_file_path):
+            with open(log_file_path, 'r') as log_file:
+                for line in log_file:
+                    match = re.search(r"Failed to process (.+): ", line)
+                    if match:
+                        error_files.add(match.group(1))
+        return error_files
+
     def process_pdfs(self):
         # Get all PDF files in the directory tree
         for root, dirs, files in os.walk(self.base_path):
             for file in files:
                 if file.endswith('.pdf'):
+                    file_path = os.path.join(root, file)
+                    if file_path in self.error_files:
+                        print(f"Skipping previously failed file: {file_path}")
+                        continue
                     match = re.search(r'(\d{4})', file)
                     if match:
                         fileyear = match.group(1)
                     else:
                         fileyear = 0000
-                    self.process_file(os.path.join(root, file),fileyear)
+                    self.process_file(file_path, fileyear)
 
     def process_file(self, file_path, year):
         try:
@@ -36,7 +62,7 @@ class PDFProcessor:
             output_folder.mkdir(exist_ok=True)
             try:
                 elements = partition_pdf(file_path, strategy='hi_res', infer_table_structure=True, metadata=True,
-                                         include_page_breaks=True,extract_images_in_pdf=False)
+                                         include_page_breaks=True, extract_images_in_pdf=False)
             except Exception as e:
                 raise ValueError(f"Error partitioning PDF {file_path}: {e}")
 
@@ -71,6 +97,7 @@ class PDFProcessor:
         except Exception as e:
             logging.error(f"Error processing elements: {str(e)}")
             print(f"Error processing elements: {e}")
+
     def save_table(self, table_element, output_folder):
         html_content = table_element.metadata.text_as_html
         page_number = table_element.metadata.page_number
@@ -92,6 +119,7 @@ class PDFProcessor:
                 logging.info(f"No tables found on page {page_number}")
         except Exception as e:
             logging.error(f"Failed to save table from page {page_number}: {str(e)}")
+
 
 if __name__ == "__main__":
     try:
