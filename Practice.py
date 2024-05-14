@@ -7,7 +7,8 @@ from unstructured.partition.pdf import partition_pdf
 import pytesseract
 from get_onedrive_path import get_onedrive_path
 import logging
-
+import openpyxl
+import re
 class PDFProcessor:
     def __init__(self, base_path):
         self.base_path = base_path
@@ -18,15 +19,24 @@ class PDFProcessor:
         for root, dirs, files in os.walk(self.base_path):
             for file in files:
                 if file.endswith('.pdf'):
-                    self.process_file(os.path.join(root, file))
+                    match = re.search(r'(\d{4})', file)
+                    if match:
+                        fileyear = match.group(1)
+                    else:
+                        fileyear = 0000
+                    self.process_file(os.path.join(root, file),fileyear)
 
-    def process_file(self, file_path):
+    def process_file(self, file_path, year):
         try:
-            output_folder = Path(file_path).parent / "Unstructured_Outputs"
+            output_folder = Path(file_path).parent / f"Unstructured_Output_{year}"
+            elements_data_file = output_folder / "elements_data.csv"
+            # If the elements_data.csv file exists, return immediately
+            if elements_data_file.exists():
+                return
             output_folder.mkdir(exist_ok=True)
             try:
                 elements = partition_pdf(file_path, strategy='hi_res', infer_table_structure=True, metadata=True,
-                                         include_page_breaks=True)
+                                         include_page_breaks=True,extract_images_in_pdf=False)
             except Exception as e:
                 raise ValueError(f"Error partitioning PDF {file_path}: {e}")
 
@@ -57,7 +67,6 @@ class PDFProcessor:
                     all_elements_df.to_csv(csv_path, index=False)
                 # Process and save tables
                 if element.category == "Table":
-                    import openpyxl
                     self.save_table(element, output_folder)
         except Exception as e:
             logging.error(f"Error processing elements: {str(e)}")
@@ -78,7 +87,7 @@ class PDFProcessor:
                 temp_df["Parent Element"] = table_element.metadata.parent_id
                 temp_df.to_html(html_path, index=False)
                 temp_df.to_csv(csv_path, index=False)
-                cell_df.to_excel(excel_path, index=False)
+                cell_df.to_excel(excel_path, index=True)
             else:
                 logging.info(f"No tables found on page {page_number}")
         except Exception as e:
