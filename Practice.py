@@ -31,7 +31,7 @@ class PDFProcessor:
         if os.path.exists(log_file_path):
             with open(log_file_path, 'r') as log_file:
                 for line in log_file:
-                    match = re.search(r"Failed to process (.+): ", line)
+                    match = re.search(r'ERROR:root:Failed to process (.*): Error', line)
                     if match:
                         error_files.add(match.group(1))
         return error_files
