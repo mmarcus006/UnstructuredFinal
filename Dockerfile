@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
     libsm6 \
     libxrender1 \
     libxext6 \
+    libgl1-mesa-glx \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python packages
@@ -32,4 +33,5 @@ RUN pip install "git+https://github.com/facebookresearch/detectron2.git"
 COPY . /app
 
 # Run the application
-CMD ["python", "your_script.py"]
+CMD ["python", "LayoutParser.py"]
+

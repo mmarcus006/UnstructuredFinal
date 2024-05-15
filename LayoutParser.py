@@ -100,6 +100,6 @@ def process_document(pdf_path, output_csv):
 
 # Example Usage
 if __name__ == "__main__":
-    pdf_path = '/app/data/path_to_your_document.pdf'
-    output_csv = '/app/data/extracted_tables.csv'
+    pdf_path = 'SamplePages.pdf'
+    output_csv = 'extracted_tables.csv'
     process_document(pdf_path, output_csv)
