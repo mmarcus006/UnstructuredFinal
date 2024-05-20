@@ -1,13 +1,8 @@
 import html5lib
-import os
 import pandas as pd
 import io
-from pathlib import Path
-from unstructured.partition.pdf import partition_pdf
-import pytesseract
 from get_onedrive_path import get_onedrive_path
 import openpyxl
-import re
 import os
 import re
 import logging
@@ -15,6 +10,7 @@ import pytesseract
 from pathlib import Path
 from unstructured.partition.pdf import partition_pdf  # Assuming this is the correct import
 from io import StringIO
+import datetime as dt
 
 
 class PDFProcessor:
@@ -59,11 +55,12 @@ class PDFProcessor:
                 return
             output_folder.mkdir(exist_ok=True)
             try:
+                print(f"Currently Processing: {file_path}")
                 elements = partition_pdf(file_path, strategy='hi_res', infer_table_structure=True, metadata=True,
                                          include_page_breaks=True, extract_images_in_pdf=False)
             except Exception as e:
                 raise ValueError(f"Error partitioning PDF {file_path}: {e}")
-
+            print(f"Finished partitioning the current file, saving tables and elements to: {output_folder}")
             self.process_elements(elements, output_folder)
         except Exception as e:
             logging.error(f"Failed to process {file_path}: {str(e)}")
