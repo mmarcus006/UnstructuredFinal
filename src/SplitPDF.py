@@ -7,16 +7,14 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger()
 
-
-def create_output_dir(output_base_dir, entity, year):
-    try:
-        output_dir = os.path.join(output_base_dir, entity, year)
-        os.makedirs(output_dir, exist_ok=True)
-        return output_dir
-    except Exception as e:
-        logger.error(f"Error creating output directory for entity {entity} and year {year}: {e}")
-        return None
-
+# def create_output_dir(output_base_dir, entity, year):
+#     try:
+#         output_dir = os.path.join(output_base_dir, entity, year)
+#         os.makedirs(output_dir, exist_ok=True)
+#         return output_dir
+#     except Exception as e:
+#         logger.error(f"Error creating output directory for entity {entity} and year {year}: {e}")
+#         return None
 
 def extract_entity_and_year(pdf_file):
     try:
@@ -29,8 +27,7 @@ def extract_entity_and_year(pdf_file):
         logger.error(f"Error extracting entity and year from {pdf_file}: {e}")
         return 'UnknownEntity', 'UnknownYear'
 
-
-def split_pdf(row, output_base_dir):
+def split_pdf(row):
     try:
         pdf_file = row['PDF File Path']
         start_page = row['Start Page Number']
@@ -40,8 +37,8 @@ def split_pdf(row, output_base_dir):
         # Extract entity and year from the file path
         entity, year = extract_entity_and_year(pdf_file)
 
-        # Create the corresponding output directory structure
-        output_dir = create_output_dir(output_base_dir, entity, year)
+        output_dir = os.path.join(os.path.dirname(pdf_file), "Split_PDFs")
+        os.makedirs(output_dir, exist_ok=True)
         if output_dir is None:
             return
 
@@ -53,8 +50,16 @@ def split_pdf(row, output_base_dir):
         new_pdf.insert_pdf(pdf_document, from_page=start_page - 1, to_page=end_page - 1)
 
         # Save the new PDF with the specified title
-        output_file_path = os.path.join(output_dir, f"{title}.pdf")
+        output_file_path = os.path.join(output_dir, f"{entity}_{year}_{title}.pdf")
         new_pdf.save(output_file_path)
+
+        # If the title contains "19", "20", or "21", save a copy in a master folder
+        for item in ["item 19", "item 20", "item 21"]:
+            if item in title.lower():
+                master_dir = os.path.join(r"C:\Users\Miller\OneDrive\FDD Database\EFD", f"Master {item}")
+                os.makedirs(master_dir, exist_ok=True)
+                master_file_path = os.path.join(master_dir, f"{entity}_{year}_{title}.pdf")
+                new_pdf.save(master_file_path)
         new_pdf.close()
         pdf_document.close()
 
@@ -65,7 +70,6 @@ def split_pdf(row, output_base_dir):
 
 def main():
     excel_path = r"C:\Users\Miller\OneDrive\GetPageNumbersFromUnstructured.xlsm"
-    output_base_dir = r"C:\Users\Miller\OneDrive\Split_PDFs"
 
     # Load the Excel file
     sheet_name = 'CleanedParsingData_Python'
@@ -73,7 +77,7 @@ def main():
 
     # Iterate through each row in the dataframe and process the PDFs
     for index, row in df.iterrows():
-        split_pdf(row, output_base_dir)
+        split_pdf(row)
 
     logger.info("PDF splitting completed successfully.")
 

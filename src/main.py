@@ -36,8 +36,9 @@ class PDFProcessor:
             for file in files:
                 if file.endswith('.pdf'):
                     file_path = os.path.join(root, file)
-                    if file_path in self.error_files:
-                        print(f"Skipping previously failed file: {file_path}")
+                    # Skip over any PDFs in a "Split_PDFs" directory
+                    if "Split_PDFs" in file_path or file_path in self.error_files:
+                        print(f"Skipping file: {file_path}")
                         continue
                     match = re.search(r'(\d{4})', file)
                     if match:
