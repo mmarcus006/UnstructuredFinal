@@ -16,9 +16,9 @@ import datetime as dt
 class PDFProcessor:
     def __init__(self, base_path):
         self.base_path = base_path
-        self.error_files = self.load_error_files('processing_errors.log')
+        self.error_files = self.load_error_files('../Logs/processing_errors.log')
         pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-        logging.basicConfig(filename='processing_errors.log', level=logging.ERROR)
+        logging.basicConfig(filename='../Logs/processing_errors.log', level=logging.ERROR)
 
     def load_error_files(self, log_file_path):
         error_files = set()

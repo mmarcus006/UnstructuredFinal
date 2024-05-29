@@ -17,7 +17,7 @@ def extract_unique_filenames(file_path):
 
     return file_paths
 
-log_file_path = 'processing_errors.log'
+log_file_path = '../Logs/processing_errors.log'
 delete_error_lines(log_file_path)
 #unique_filenames = extract_unique_filenames(log_file_path)
 #print(unique_filenames)
