@@ -1,61 +1,66 @@
-import os
-import fitz  # PyMuPDF
-import requests
-import json
+import asyncio
+import threading
+from tkinter import Tk, Text, Scrollbar, Button, Entry, END, VERTICAL
+from ollama import AsyncClient
+from httpx import HTTPStatusError
 
-# Define the API endpoint and model
-API_URL = "http://localhost:11434/api/generate"
-MODEL_NAME = "llama3:8b-instruct-q8_0"
 
-def extract_table_of_contents(pdf_path):
-    """Extracts the text from the page containing 'Table Of Contents' and the following page."""
-    doc = fitz.open(pdf_path)
-    toc_text = ""
-    for page_num in range(len(doc)):
-        page = doc.load_page(page_num)
-        text = page.get_text()
-        if "TABLE OF CONTENT" in text:
-            toc_text += text
-            if page_num + 1 < len(doc):
-                next_page = doc.load_page(page_num + 1)
-                toc_text += next_page.get_text()
-            break
-    return toc_text
+class ChatGUI:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Chat with Llama")
 
-def send_to_llm(text):
-    headers = {
-        "Content-Type": "application/json"
-    }
-    prompt = f'Extract the table of contents from the following text: """{text}"""'
-    payload = {
-        "model": MODEL_NAME,
-        "prompt": prompt,
-        "stream": True
-    }
+        self.model_name = "llama3:8b-instruct-q8_0"
 
-    response = requests.post(API_URL, headers=headers, data=json.dumps(payload))
+        self.text_area = Text(root, wrap='word', state='disabled')
+        self.text_area.grid(row=0, column=0, columnspan=2, padx=10, pady=10)
 
-    if response.status_code != 200:
-        print(f"Error: {response.status_code}")
-        print(response.text)
-        return None
+        self.scrollbar = Scrollbar(root, command=self.text_area.yview, orient=VERTICAL)
+        self.text_area['yscrollcommand'] = self.scrollbar.set
+        self.scrollbar.grid(row=0, column=2, sticky='ns')
 
-    return response.json()
+        self.entry = Entry(root, width=80)
+        self.entry.grid(row=1, column=0, padx=10, pady=10)
 
-def process_pdfs_in_directory(directory):
-    for root, _, files in os.walk(directory):
-        for file in files:
-            if file.lower().endswith(".pdf"):
-                pdf_path = os.path.join(root, file)
-                print(f"Processing: {pdf_path}")
-                pdf_text = extract_table_of_contents(pdf_path)
-                if pdf_text:
-                    result = send_to_llm(pdf_text)
-                    if result:
-                        print(result)
-                else:
-                    print("No Table Of Contents found in the PDF.")
+        self.send_button = Button(root, text="Send", command=self.on_send)
+        self.send_button.grid(row=1, column=1, padx=10, pady=10)
+
+    def on_send(self):
+        user_message = self.entry.get()
+        if user_message:
+            self.entry.delete(0, END)
+            self.append_message("You", user_message)
+            self.root.after(100, self.async_chat, user_message)
+
+    def append_message(self, sender, message):
+        self.text_area.config(state='normal')
+        self.text_area.insert(END, f"{sender}: {message}\n")
+        self.text_area.config(state='disabled')
+        self.text_area.yview(END)
+
+    async def chat(self, user_message):
+        self.append_message("System", "Generating response...")
+        message = {'role': 'user', 'content': user_message}
+        response = ""
+        try:
+            async for part in await AsyncClient().chat(model=self.model_name, messages=[message], stream=True):
+                response += part['message']['content']
+            self.append_message("Llama", response)
+        except HTTPStatusError as e:
+            self.append_message("System", f"HTTP Error: {e.response.status_code} - {e.response.reason_phrase}")
+
+    def async_chat(self, user_message):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(self.chat(user_message))
+        loop.close()
+
+
+def run_gui():
+    root = Tk()
+    app = ChatGUI(root)
+    root.mainloop()
+
 
 if __name__ == "__main__":
-    directory_path = r"C:\Users\Miller\OneDrive\FDD Database\EFD\Database By Sector\Coffee"  # Replace with your directory path
-    process_pdfs_in_directory(directory_path)
+    run_gui()

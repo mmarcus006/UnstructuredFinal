@@ -22,8 +22,8 @@ def extract_entity_and_year(pdf_file):
     try:
         path_parts = pdf_file.split('\\')
         file_name = os.path.basename(pdf_file)
-        entity = path_parts[-2]
-        year = file_name.split('_')[-1].split('.')[0]  # Extracting year from the file name
+        entity = path_parts[-3]
+        year = path_parts[-2] # Extracting year from the file name
         return entity, year
     except Exception as e:
         logger.error(f"Error extracting entity and year from {pdf_file}: {e}")
@@ -68,7 +68,7 @@ def main():
     output_base_dir = r"C:\Users\Miller\OneDrive\Split_PDFs"
 
     # Load the Excel file
-    sheet_name = 'CleanedParsingData'
+    sheet_name = 'CleanedParsingData_Python'
     df = pd.read_excel(excel_path, sheet_name=sheet_name)
 
     # Iterate through each row in the dataframe and process the PDFs
