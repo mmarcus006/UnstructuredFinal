@@ -11,7 +11,7 @@ from pathlib import Path
 from unstructured.partition.pdf import partition_pdf  # Assuming this is the correct import
 from io import StringIO
 import datetime as dt
-
+from CleanLogs import delete_error_lines, extract_unique_filenames
 
 class PDFProcessor:
     def __init__(self, base_path):
@@ -119,6 +119,7 @@ class PDFProcessor:
 
 if __name__ == "__main__":
     try:
+        delete_error_lines('../Logs/processing_errors.log')
         onedrive_path = get_onedrive_path() + r"\FDD Database\EFD\FDD Database"
         processor = PDFProcessor(onedrive_path)
         processor.process_pdfs()
