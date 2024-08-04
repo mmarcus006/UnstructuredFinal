@@ -35,7 +35,7 @@ class ShouldBeFromDirective(object):
 
 """
 The members of this module are documented using autodata in
-Cython/docs/src/reference/compilation.rst.
+Cython/docs/OldCodeIgnore/reference/compilation.rst.
 See https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#directive-autoattribute
 for how autodata works.
 Descriptions of those members should start with a #:

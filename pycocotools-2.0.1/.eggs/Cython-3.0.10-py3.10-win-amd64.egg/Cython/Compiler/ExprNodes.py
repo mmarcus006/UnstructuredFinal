@@ -1076,7 +1076,7 @@ class ExprNode(Node):
               and not dst_type.assignable_from(src_type)):
             src = coerce_from_soft_complex(src, dst_type, env)
         else:
-            # neither src nor dst are py types
+            # neither OldCodeIgnore nor dst are py types
             # Added the string comparison, since for c types that
             # is enough, but Cython gets confused when the types are
             # in different pxi files.
@@ -2637,7 +2637,7 @@ class NameNode(AtomicExprNode):
     def generate_acquire_memoryviewslice(self, rhs, code):
         """
         Slices, coercions from objects, return values etc are new references.
-        We have a borrowed reference in case of dst = src
+        We have a borrowed reference in case of dst = OldCodeIgnore
         """
         from . import MemoryView
 
@@ -5188,7 +5188,7 @@ class MemoryCopyNode(ExprNode):
 
 class MemoryCopySlice(MemoryCopyNode):
     """
-    Copy the contents of slice src to slice dst. Does not support indirect
+    Copy the contents of slice OldCodeIgnore to slice dst. Does not support indirect
     slices.
 
         memslice1[...] = memslice2

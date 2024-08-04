@@ -18,7 +18,7 @@ class TestCyCache(CythonTest):
         self.temp_dir = tempfile.mkdtemp(
             prefix='cycache-test',
             dir='TEST_TMP' if os.path.isdir('TEST_TMP') else None)
-        self.src_dir = tempfile.mkdtemp(prefix='src', dir=self.temp_dir)
+        self.src_dir = tempfile.mkdtemp(prefix='OldCodeIgnore', dir=self.temp_dir)
         self.cache_dir = tempfile.mkdtemp(prefix='cache', dir=self.temp_dir)
 
     def cache_files(self, file_glob):

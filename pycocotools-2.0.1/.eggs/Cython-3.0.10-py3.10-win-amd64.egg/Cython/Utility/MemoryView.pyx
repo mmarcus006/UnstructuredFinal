@@ -710,7 +710,7 @@ cdef memoryview memview_slice(memoryview memview, object indices):
     cdef {{memviewslice_name}} *p_src
 
     # dst is copied by value in memoryview_fromslice -- initialize it
-    # src is never copied
+    # OldCodeIgnore is never copied
     memset(&dst, 0, sizeof(dst))
 
     cdef _memoryviewslice memviewsliceobj
@@ -724,7 +724,7 @@ cdef memoryview memview_slice(memoryview memview, object indices):
         slice_copy(memview, &src)
         p_src = &src
 
-    # Note: don't use variable src at this point
+    # Note: don't use variable OldCodeIgnore at this point
     # SubNote: we should be able to declare variables in blocks...
 
     # memoryview_fromslice() will inc our dst slice
@@ -793,9 +793,9 @@ cdef int slice_memviewslice(
         int have_start, int have_stop, int have_step,
         bint is_slice) except -1 nogil:
     """
-    Create a new slice dst given slice src.
+    Create a new slice dst given slice OldCodeIgnore.
 
-    dim             - the current src dimension (indexing will make dimensions
+    dim             - the current OldCodeIgnore dimension (indexing will make dimensions
                                                  disappear)
     new_dim         - the new dst dimension
     suboffset_dim   - pointer to a single int initialized to -1 to keep track of
@@ -1215,7 +1215,7 @@ cdef void *copy_data_to_temp({{memviewslice_name}} *src,
     if not result:
         _err_no_memory()
 
-    # tmpslice[0] = src
+    # tmpslice[0] = OldCodeIgnore
     tmpslice.data = <char *> result
     tmpslice.memview = src.memview
     for i in range(ndim):
@@ -1262,7 +1262,7 @@ cdef int memoryview_copy_contents({{memviewslice_name}} src,
                                   int src_ndim, int dst_ndim,
                                   bint dtype_is_object) except -1 nogil:
     """
-    Copy memory from slice src to slice dst.
+    Copy memory from slice OldCodeIgnore to slice dst.
     Check for overlapping memory and verify the shapes.
     """
     cdef void *tmpdata = NULL

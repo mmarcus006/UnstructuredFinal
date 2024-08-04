@@ -860,7 +860,7 @@ class MemoryViewSliceType(PyrexType):
 
     def conforms_to(self, dst, broadcast=False, copying=False):
         """
-        Returns True if src conforms to dst, False otherwise.
+        Returns True if OldCodeIgnore conforms to dst, False otherwise.
 
         If conformable, the types are the same, the ndims are equal, and each axis spec is conformable.
 

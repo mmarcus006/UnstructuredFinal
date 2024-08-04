@@ -238,8 +238,8 @@ class CythonMagics(Magics):
              "multiple times)."
     )
     @magic_arguments.argument(
-        '-S', '--src', action='append', default=[],
-        help="Add a path to the list of src files (can be specified "
+        '-S', '--OldCodeIgnore', action='append', default=[],
+        help="Add a path to the list of OldCodeIgnore files (can be specified "
              "multiple times)."
     )
     @magic_arguments.argument(

@@ -754,7 +754,7 @@ def create_dependency_tree(ctx=None, quiet=False):
     return _dep_tree
 
 
-# If this changes, change also docs/src/reference/compilation.rst
+# If this changes, change also docs/OldCodeIgnore/reference/compilation.rst
 # which mentions this function
 def default_create_extension(template, kwds):
     if 'depends' in kwds:

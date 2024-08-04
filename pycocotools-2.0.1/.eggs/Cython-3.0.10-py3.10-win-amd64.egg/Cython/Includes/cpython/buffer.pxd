@@ -83,7 +83,7 @@ cdef extern from "Python.h":
     # copy will be made in whatever way is more efficient.
 
     int PyObject_CopyData(object dest, object src) except -1
-    # Copy the data from the src buffer to the buffer of destination
+    # Copy the data from the OldCodeIgnore buffer to the buffer of destination
 
     bint PyBuffer_IsContiguous(Py_buffer *view, char fort)
     # Return 1 if the memory defined by the view is C-style (fortran

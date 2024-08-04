@@ -1,0 +1,7 @@
+unstructured
+pandas
+PyPDF2
+PyYAML
+tqdm
+lxml
+openpyxl

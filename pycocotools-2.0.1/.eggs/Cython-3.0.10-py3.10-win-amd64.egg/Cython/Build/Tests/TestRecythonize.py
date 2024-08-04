@@ -30,7 +30,7 @@ class TestRecythonize(CythonTest):
 
     def test_recythonize_pyx_on_pxd_change(self):
 
-        src_dir = tempfile.mkdtemp(prefix='src', dir=self.temp_dir)
+        src_dir = tempfile.mkdtemp(prefix='OldCodeIgnore', dir=self.temp_dir)
 
         a_pxd = os.path.join(src_dir, 'a.pxd')
         a_pyx = os.path.join(src_dir, 'a.pyx')
@@ -72,7 +72,7 @@ class TestRecythonize(CythonTest):
 
     def test_recythonize_py_on_pxd_change(self):
 
-        src_dir = tempfile.mkdtemp(prefix='src', dir=self.temp_dir)
+        src_dir = tempfile.mkdtemp(prefix='OldCodeIgnore', dir=self.temp_dir)
 
         a_pxd = os.path.join(src_dir, 'a.pxd')
         a_py = os.path.join(src_dir, 'a.py')
@@ -113,7 +113,7 @@ class TestRecythonize(CythonTest):
         self.assertFalse("__pyx_v_1a_value = 1.0;" in a_c_contents1)
 
     def test_recythonize_pyx_on_dep_pxd_change(self):
-        src_dir = tempfile.mkdtemp(prefix='src', dir=self.temp_dir)
+        src_dir = tempfile.mkdtemp(prefix='OldCodeIgnore', dir=self.temp_dir)
 
         a_pxd = os.path.join(src_dir, 'a.pxd')
         a_pyx = os.path.join(src_dir, 'a.pyx')
@@ -163,7 +163,7 @@ class TestRecythonize(CythonTest):
 
     def test_recythonize_py_on_dep_pxd_change(self):
 
-        src_dir = tempfile.mkdtemp(prefix='src', dir=self.temp_dir)
+        src_dir = tempfile.mkdtemp(prefix='OldCodeIgnore', dir=self.temp_dir)
 
         a_pxd = os.path.join(src_dir, 'a.pxd')
         a_pyx = os.path.join(src_dir, 'a.pyx')
