@@ -10,8 +10,8 @@ def main():
 
     try:
         processor = PDFProcessor(config)
-        processor.process_pdfs() #uncomment to run the normal script on all pdf files
-        #processor.process_single_file(sample_pdf_path) #comment out to run the normal script on all pdf files
+        #processor.process_pdfs() #uncomment to run the normal script on all pdf files
+        processor.process_single_file(sample_pdf_path) #comment out to run the normal script on all pdf files
         logger.info(f"Successfully processed sample PDF: {sample_pdf_path}")
     except Exception as e:
         logger.critical(f"An unexpected error occurred: {e}", exc_info=True)

@@ -102,7 +102,7 @@ class PDFProcessor:
 
         save_elements_data(all_elements_df, output_folder)
         save_metadata_json(all_elements_metadata, output_folder)
-        save_metadata_html(all_elements_metadata, output_folder)
+        #save_metadata_html(all_elements_metadata, output_folder)
         save_tables(tables, output_folder)
 
         copy_pdf_to_output(file_path, output_folder)
@@ -132,7 +132,7 @@ class PDFProcessor:
 
         save_elements_data(all_elements_df, output_folder)
         save_metadata_json(all_elements_metadata, output_folder)
-        #save_metadata_html(all_elements_metadata, output_folder)
+        save_metadata_html(all_elements_metadata, output_folder)
         save_tables(tables, output_folder)
 
         self.logger.info(f"Processed file: {file_path}")
