@@ -6,11 +6,11 @@ from tqdm import tqdm
 from typing import Dict, Any
 from unstructured.partition.pdf import partition_pdf
 
-from Config import load_config
-from utils import extract_year_from_filename, extract_entity_name, get_output_folder, is_already_processed, \
+from New_src.Config import load_config
+from New_src.utils import extract_year_from_filename, extract_entity_name, get_output_folder, is_already_processed, \
     copy_pdf_to_output
-from element_processor import process_elements
-from file_handler import (
+from New_src.element_processor import process_elements
+from New_src.file_handler import (
     save_elements_data, save_metadata_json, save_metadata_html, save_tables,
     load_error_files, update_error_log, generate_summary_report
 )
@@ -107,3 +107,32 @@ class PDFProcessor:
 
         copy_pdf_to_output(file_path, output_folder)
         self.logger.info(f"Copied original PDF to output folder: {output_folder}")
+
+    def process_single_file(self, file_path: Path):
+        output_folder = file_path.parent
+
+        self.logger.info(f"Processing file: {file_path}")
+
+        try:
+            elements = partition_pdf(
+                filename=str(file_path),
+                strategy='hi_res',
+                infer_table_structure=True,
+                include_metadata=True,
+                include_page_breaks=True,
+                extract_images_in_pdf=False,
+                ocr_languages=['eng'],
+                url=None
+            )
+        except Exception as e:
+            raise PDFProcessingError("Failed to partition PDF", str(file_path), e)
+
+        self.logger.info(f"Finished partitioning file: {file_path}")
+        all_elements_df, tables, all_elements_metadata = process_elements(elements)
+
+        save_elements_data(all_elements_df, output_folder)
+        save_metadata_json(all_elements_metadata, output_folder)
+        #save_metadata_html(all_elements_metadata, output_folder)
+        save_tables(tables, output_folder)
+
+        self.logger.info(f"Processed file: {file_path}")

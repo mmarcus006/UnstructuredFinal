@@ -62,7 +62,6 @@ def process_elements(elements: List[Any]) -> Tuple[pd.DataFrame, List[Any], List
                 "Page Number": [getattr(element.metadata, 'page_number', None)],
                 "Element ID": [getattr(element, 'id', None)],
                 "Parent Element": [getattr(element.metadata, 'parent_id', None)],
-                "Filename": [getattr(element.metadata, 'filename', None)],
                 "Coordinates": [getattr(element.metadata, 'coordinates', None)],
                 "Detection Class Probability": [getattr(element.metadata, 'detection_class_prob', None)],
                 "Category": [getattr(element, 'category', 'Unknown')],

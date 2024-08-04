@@ -1,0 +1,124 @@
+[
+  {
+    "id": "e853e11c12b6a15ba17fadac572f5a06",
+    "text": "Franchise Disclosure Document",
+    "category": "Header",
+    "filename": "sample.pdf",
+    "parent_id": null,
+    "coordinates": null,
+    "detection_class_prob": 0.8595180511474609,
+    "page_number": 1,
+    "relative_coordinates": null
+  },
+  {
+    "id": "ace7460973b4d9cce00b22fadab2db5d",
+    "text": "FINANCIAL PERFORMANCE REPRESENTATIONS",
+    "category": "Title",
+    "filename": "sample.pdf",
+    "parent_id": "e853e11c12b6a15ba17fadac572f5a06",
+    "coordinates": null,
+    "detection_class_prob": 0.7200801372528076,
+    "page_number": 1,
+    "relative_coordinates": null
+  },
+  {
+    "id": "64736c5cff9e09abf0ca301bf0fcd3f4",
+    "text": "ITEM 19.",
+    "category": "Image",
+    "filename": "sample.pdf",
+    "parent_id": null,
+    "coordinates": null,
+    "detection_class_prob": null,
+    "page_number": 1,
+    "relative_coordinates": null
+  },
+  {
+    "id": "d371f4d3cc1e5f10b33344b2565fd26c",
+    "text": "The FTC\u2019s Franchise Rule permits a franchisor to provide information about the actual or potential financial performance of its franchised and/or franchisor-owned outlets, if there is a reasonable basis for the information, and if the information is included in the Disclosure Document. Financial performance information that differs from that included in Item 19 may be given only if: (1) a franchisor provides the actual records of an existing outlet you are considering buying; or (2) a franchisor supplements the information provided in this Item 19, for example, by providing information about possible performance at a particular location or under particular circumstances.",
+    "category": "NarrativeText",
+    "filename": "sample.pdf",
+    "parent_id": null,
+    "coordinates": null,
+    "detection_class_prob": 0.9554799795150757,
+    "page_number": 1,
+    "relative_coordinates": null
+  },
+  {
+    "id": "ab43a31273aca2509c1ada485471668e",
+    "text": "Basis Zoomin Groomin\u00ae is a mobile pet grooming business and each Zoomin Groomin\u00ae Vehicle is an Outlet. There were 70 Zoomin Groomin\u00ae Vehicles in operation as of December 31, 2023, all of which franchisees owned. We excluded 55 of them from these financial performance representations because they began operations after January 1, 2023. We excluded 4 additional Outlets because they were transferred to new owners in 2023.",
+    "category": "NarrativeText",
+    "filename": "sample.pdf",
+    "parent_id": null,
+    "coordinates": null,
+    "detection_class_prob": 0.953139066696167,
+    "page_number": 1,
+    "relative_coordinates": null
+  },
+  {
+    "id": "fefa47dceb14a5304dbbb04763cc78fe",
+    "text": "The following tables present historic gross revenue figures for the remaining 11 Zoomin Groomin\u00ae Vehicles, which operated for the entire year from January 1, 2023, through December 31, 2023. Data is presented by quartile and then cumulatively.",
+    "category": "NarrativeText",
+    "filename": "sample.pdf",
+    "parent_id": null,
+    "coordinates": null,
+    "detection_class_prob": 0.9338515996932983,
+    "page_number": 1,
+    "relative_coordinates": null
+  },
+  {
+    "id": "919838d68d06e0010194996a51492ce8",
+    "text": "GROSS REVENUES FOR FRANCHISEES PER VEHICLE",
+    "category": "Title",
+    "filename": "sample.pdf",
+    "parent_id": null,
+    "coordinates": null,
+    "detection_class_prob": 0.6133537888526917,
+    "page_number": 1,
+    "relative_coordinates": null
+  },
+  {
+    "id": "08d58487faf2bb1bad430fa70125f76e",
+    "text": "Total Number of Outlets 3 Zoomin Groomin Vehicles First Quartile of Franchisees For the Period January 1, 2023 to December 31, 2023 Average Annual Sales / (Median Annual Sales) Highest and Lowest Annual Sales Number (%) of Vehicles that Met or Exceeded Average 1 (33%) $256,800 ($249,755) $271,881 - $248,764",
+    "category": "Table",
+    "filename": "sample.pdf",
+    "parent_id": "919838d68d06e0010194996a51492ce8",
+    "coordinates": null,
+    "detection_class_prob": 0.9198906421661377,
+    "page_number": 1,
+    "relative_coordinates": null,
+    "text_as_html": "<table><thead><th></th><th>Zoomin First Quartile For the Period January 1,</th><th>Groomin Vehicles of Franchisees 2023 to December 31,</th><th>2023</th></thead><thead><th>Total Number of Outlets</th><th>| Average Annual Sales / (Median Annual Sales)</th><th>| Highest and Lowest | Annual Sales</th><th>Number (%) of Vehicles that Met or Exceeded Average</th></thead><tr><td>3</td><td>$256,800 ($249,755)</td><td>$271,881 - $248,764</td><td>1 33%)</td></tr></table>"
+  },
+  {
+    "id": "b5858dd5899eb48e0fddf251cc705d8d",
+    "text": "Total Number of Outlets 3 Zoomin Groomin Vehicles Second Quartile of Franchisees For the Period January 1, 2023 to December 31, 2023 Average Annual Sales / (Median Annual Sales) Highest and Lowest Annual Sales Number (%) of Vehicles that Met or Exceeded Average 2 (66.6%) $225,679 ($236,159) $238,003 - $202,875",
+    "category": "Table",
+    "filename": "sample.pdf",
+    "parent_id": "919838d68d06e0010194996a51492ce8",
+    "coordinates": null,
+    "detection_class_prob": 0.9189635515213013,
+    "page_number": 1,
+    "relative_coordinates": null,
+    "text_as_html": "<table><thead><th></th><th>Zoomin Second Quartile For the Period January 1,</th><th>Groomin Vehicles of Franchisees 2023 to December 31,</th><th>2023</th></thead><thead><th>Total Number of Outlets</th><th>| Average Annual Sales / (Median Annual Sales)</th><th>| Highest and Lowest Annual Sales</th><th>| Number (%) of Vehicles that Met or Exceeded Average</th></thead><tr><td>3</td><td>$225,679 ($236,159)</td><td>$238,003 - $202,875</td><td>2 (66.6%)</td></tr></table>"
+  },
+  {
+    "id": "6fb4f592ea29b32e4e1bf6dd67369b16",
+    "text": "Page 42",
+    "category": "Header",
+    "filename": "sample.pdf",
+    "parent_id": null,
+    "coordinates": null,
+    "detection_class_prob": 0.8667873740196228,
+    "page_number": 1,
+    "relative_coordinates": null
+  },
+  {
+    "id": "32155a5cacec78b1b2a73f480d79753f",
+    "text": "",
+    "category": "PageBreak",
+    "filename": "sample.pdf",
+    "parent_id": null,
+    "coordinates": null,
+    "detection_class_prob": null,
+    "page_number": null
+  }
+]
