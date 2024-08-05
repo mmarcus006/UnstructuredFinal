@@ -1,12 +1,13 @@
 import json
-import pandas as pd
 from typing import List, Dict, Any, Tuple
-import html
+from typing import List, Any
 from pathlib import Path
-from collections import defaultdict
+import pandas as pd
 import logging
+from collections import defaultdict
+import html
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def save_elements_data(df: pd.DataFrame, output_folder: Path):
@@ -152,43 +153,6 @@ def save_metadata_html(metadata: List[Dict[str, Any]], output_folder: Path):
     except Exception as e:
         logger.error(f"An error occurred while creating the HTML file: {str(e)}")
         raise
-
-from typing import List, Any
-from pathlib import Path
-import pandas as pd
-import logging
-from collections import defaultdict
-import html
-
-logger = logging.getLogger(__name__)
-
-from typing import List, Any
-from pathlib import Path
-import pandas as pd
-import logging
-from collections import defaultdict
-import html
-
-logger = logging.getLogger(__name__)
-
-from typing import List, Any
-from pathlib import Path
-import pandas as pd
-import logging
-from collections import defaultdict
-import html
-
-logger = logging.getLogger(__name__)
-
-from typing import List, Any
-from pathlib import Path
-import pandas as pd
-import logging
-from collections import defaultdict
-import html
-
-logger = logging.getLogger(__name__)
-
 
 def save_tables(tables: List[Any], output_folder: Path):
     # Group tables by parent ID
