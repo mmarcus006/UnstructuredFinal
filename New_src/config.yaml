@@ -1,4 +1,7 @@
+#input_dir: "C:\\Users\\Miller\\OneDrive\\FDD Database\\EFD\\FDD Database"
+#output_dir: "C:\\Users\\Miller\\OneDrive\\FDD Database\\EFD\\FDD Database\\UnstructuredOutput"
+#num_workers: 22
+#retry_attempts: 3
 input_dir: "C:\\Users\\Miller\\OneDrive\\FDD Database\\EFD\\FDD Database"
 output_dir: "C:\\Users\\Miller\\OneDrive\\FDD Database\\EFD\\FDD Database\\UnstructuredOutput"
-num_workers: 22
 retry_attempts: 3
