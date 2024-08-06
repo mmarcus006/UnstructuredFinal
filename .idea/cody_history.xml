@@ -244,6 +244,24 @@
               <chat>
                 <internalId value="1d427e20-51b4-4748-a5b9-7068436df694" />
               </chat>
+              <chat>
+                <internalId value="f10adef7-263e-4907-a64a-2e3d64ee1444" />
+              </chat>
+              <chat>
+                <internalId value="c6d5dea3-ad6e-46f2-b35b-3b46d42d46a1" />
+              </chat>
+              <chat>
+                <internalId value="1094109d-c3fd-4b58-b01b-9d5cca7e58bd" />
+              </chat>
+              <chat>
+                <internalId value="5c746e31-014f-4120-8d89-638a092ae6ec" />
+              </chat>
+              <chat>
+                <internalId value="038b9384-db7e-4554-a870-3a209b72043f" />
+              </chat>
+              <chat>
+                <internalId value="4055d5f8-c9d4-4e39-ae35-ebdf842d9eae" />
+              </chat>
             </list>
           </chats>
         </AccountData>
