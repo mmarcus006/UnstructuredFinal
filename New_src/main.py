@@ -28,12 +28,13 @@ from pathlib import Path
 def main():
     config = load_config('config.yaml')
     logger = setup_logging(config['output_dir'])
-
+    sample_pdf_path = Path(r"C:\Users\Miller\PycharmProjects\UnstructuredFinal\New_src\samples\sample.pdf")
     logger.info(f"Parallel processing: {'enabled' if config['parallel_processing'] else 'disabled'}")
 
     try:
         processor = PDFProcessor(config)
         processor.process_pdfs()
+        #processor.process_single_file(sample_pdf_path) #comment out to run the normal script on all
         logger.info("PDF processing completed successfully")
     except Exception as e:
         logger.critical(f"An unexpected error occurred: {e}", exc_info=True)

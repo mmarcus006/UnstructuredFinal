@@ -240,11 +240,11 @@ class PDFProcessor:
             elements = partition_pdf(
                 filename=str(file_path),
                 strategy='hi_res',
+                hi_res_model_name="yolox",
                 infer_table_structure=True,
                 include_metadata=True,
                 include_page_breaks=True,
                 extract_images_in_pdf=False,
-                ocr_languages=['eng'],
                 url=None
             )
         except Exception as e:
@@ -271,10 +271,10 @@ class PDFProcessor:
                 filename=str(file_path),
                 strategy='hi_res',
                 infer_table_structure=True,
+                hi_res_model_name="yolox",
                 include_metadata=True,
                 include_page_breaks=True,
                 extract_images_in_pdf=False,
-                ocr_languages=['eng'],
                 url=None
             )
         except Exception as e:
