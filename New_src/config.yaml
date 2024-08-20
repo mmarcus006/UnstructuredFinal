@@ -4,4 +4,4 @@ output_dir: "/home/u230698/OneDrive/UnstructuredOutput"
 #output_dir: "C:\\Users\\Miller\\OneDrive\\FDD Database\\EFD\\UnstructuredOutput"
 num_workers: 4
 retry_attempts: 3
-parallel_processing: false
+parallel_processing: true
