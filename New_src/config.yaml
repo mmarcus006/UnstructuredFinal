@@ -1,5 +1,5 @@
-input_dir: "/home/u230698/OneDrive/FDD_Database/FDD Database"
-output_dir: "/home/u230698/OneDrive/FDD_Database/UnstructuredOutput"
+input_dir: "/home/u230698/OneDrive/FDD_Database"
+output_dir: "/home/u230698/OneDrive/UnstructuredOutput"
 #input_dir: "C:\\Users\\Miller\\OneDrive\\FDD Database\\EFD\\FDD Database"
 #output_dir: "C:\\Users\\Miller\\OneDrive\\FDD Database\\EFD\\UnstructuredOutput"
 num_workers: 22
