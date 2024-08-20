@@ -2,6 +2,6 @@ input_dir: "/home/u230698/OneDrive/FDD_Database"
 output_dir: "/home/u230698/OneDrive/UnstructuredOutput"
 #input_dir: "C:\\Users\\Miller\\OneDrive\\FDD Database\\EFD\\FDD Database"
 #output_dir: "C:\\Users\\Miller\\OneDrive\\FDD Database\\EFD\\UnstructuredOutput"
-num_workers: 22
+num_workers: 2
 retry_attempts: 3
-parallel_processing: false
+parallel_processing: true
