@@ -174,7 +174,7 @@ class PDFProcessor:
         self.error_log_file = Path(self.config['output_dir']) / 'error_log.json'
         self.error_files = load_error_files(self.error_log_file)
         self.parallel_processing = self.config['parallel_processing']
-        self.timeout = self.config.get('processing_timeout', 1200)  # 5 minutes timeout
+        self.timeout = self.config.get('processing_timeout', 5000)  # 5 minutes timeout
 
     def process_pdfs(self):
         pdf_files = list(Path(self.config['input_dir']).glob('**/*.pdf'))

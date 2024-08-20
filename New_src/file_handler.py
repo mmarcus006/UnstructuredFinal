@@ -7,7 +7,7 @@ import logging
 from collections import defaultdict
 import html
 
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 def save_elements_data(df: pd.DataFrame, output_folder: Path):
