@@ -138,10 +138,10 @@
 #         self.logger.info(f"Processed file: {file_path}")
 # pdf_processor.py
 from unstructured.partition.pdf import partition_pdf
-from New_src.utils import extract_year_from_filename, extract_entity_name, get_output_folder, is_already_processed, \
+from utils import extract_year_from_filename, extract_entity_name, get_output_folder, is_already_processed, \
     copy_pdf_to_output
-from New_src.element_processor import process_elements
-from New_src.file_handler import (
+from element_processor import process_elements
+from file_handler import (
     save_elements_data, save_metadata_json, save_metadata_html, save_tables,
     load_error_files, update_error_log, generate_summary_report
 )
