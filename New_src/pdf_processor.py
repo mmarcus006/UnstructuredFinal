@@ -137,14 +137,7 @@
 #
 #         self.logger.info(f"Processed file: {file_path}")
 # pdf_processor.py
-import logging
-from pathlib import Path
-from concurrent.futures import ProcessPoolExecutor, as_completed
-from tqdm import tqdm
-from typing import Dict, Any
 from unstructured.partition.pdf import partition_pdf
-
-from New_src.Config import load_config
 from New_src.utils import extract_year_from_filename, extract_entity_name, get_output_folder, is_already_processed, \
     copy_pdf_to_output
 from New_src.element_processor import process_elements
@@ -165,6 +158,15 @@ class PDFProcessingError(Exception):
     def __str__(self):
         return f"Error processing {self.file_path}: {self.message}"
 
+
+import logging
+from pathlib import Path
+from concurrent.futures import ProcessPoolExecutor, as_completed, TimeoutError
+from tqdm import tqdm
+from typing import Dict, Any
+import time
+
+
 class PDFProcessor:
     def __init__(self, config: Dict[str, Any]):
         self.config = config
@@ -172,6 +174,7 @@ class PDFProcessor:
         self.error_log_file = Path(self.config['output_dir']) / 'error_log.json'
         self.error_files = load_error_files(self.error_log_file)
         self.parallel_processing = self.config['parallel_processing']
+        self.timeout = self.config.get('processing_timeout', 1200)  # 5 minutes timeout
 
     def process_pdfs(self):
         pdf_files = list(Path(self.config['input_dir']).glob('**/*.pdf'))
@@ -181,15 +184,21 @@ class PDFProcessor:
         if self.parallel_processing:
             self.logger.info("Parallel processing enabled")
             with ProcessPoolExecutor(max_workers=self.config['num_workers']) as executor:
-                futures = {executor.submit(self._process_file_with_retry, file_path): file_path for file_path in pdf_files}
+                futures = {executor.submit(self._process_file_with_retry, file_path): file_path for file_path in
+                           pdf_files}
                 for future in tqdm(as_completed(futures), total=len(futures), desc="Processing PDFs"):
                     file_path = futures[future]
                     try:
-                        result = future.result()
+                        result = future.result(timeout=self.timeout)
                         if result:
                             successful_files.append(str(file_path))
+                            self.logger.info(f"Successfully processed: {file_path}")
                         else:
                             failed_files.append(str(file_path))
+                            self.logger.warning(f"Failed to process: {file_path}")
+                    except TimeoutError:
+                        self.logger.error(f"Processing timed out for {file_path}")
+                        failed_files.append(str(file_path))
                     except Exception as e:
                         self.logger.error(f"Failed to process {file_path}: {e}")
                         failed_files.append(str(file_path))
@@ -197,26 +206,36 @@ class PDFProcessor:
             self.logger.info("Parallel processing disabled")
             for file_path in tqdm(pdf_files, desc="Processing PDFs"):
                 try:
-                    result = self._process_file(file_path)
+                    result = self._process_file_with_retry(file_path)
                     if result:
                         successful_files.append(str(file_path))
+                        self.logger.info(f"Successfully processed: {file_path}")
                     else:
                         failed_files.append(str(file_path))
+                        self.logger.warning(f"Failed to process: {file_path}")
                 except Exception as e:
                     self.logger.error(f"Failed to process {file_path}: {e}")
                     failed_files.append(str(file_path))
 
+        self.logger.info(
+            f"Total files: {len(pdf_files)}, Successful: {len(successful_files)}, Failed: {len(failed_files)}")
         generate_summary_report(successful_files, failed_files, Path(self.config['output_dir']))
 
     def _process_file_with_retry(self, file_path: Path) -> bool:
+        start_time = time.time()
         for attempt in range(self.config['retry_attempts']):
             try:
                 self._process_file(file_path)
+                self.logger.info(f"Successfully processed {file_path} on attempt {attempt + 1}")
                 return True
             except PDFProcessingError as e:
                 self.logger.warning(f"Error processing {e.file_path} on attempt {attempt + 1}: {e.message}")
                 if e.original_error:
                     self.logger.debug(f"Original error: {str(e.original_error)}")
+
+            if time.time() - start_time > self.timeout:
+                self.logger.error(f"Processing timed out for {file_path}")
+                break
 
         self.error_files.append(str(file_path))
         update_error_log(self.error_files, self.error_log_file)

@@ -1,5 +1,5 @@
 input_dir: "/home/u230698/OneDrive/FDD_Database/FDD Database"
 output_dir: "/home/u230698/OneDrive/FDD_Database/UnstructuredOutput"
-num_workers: 22
+num_workers: 2
 retry_attempts: 3
-parallel_processing: false
+parallel_processing: true
