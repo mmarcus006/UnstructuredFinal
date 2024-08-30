@@ -1,169 +1,19 @@
-# # pdf_processor.py
-# import logging
-# from pathlib import Path
-# from concurrent.futures import ProcessPoolExecutor, as_completed
-# from tqdm import tqdm
-# from typing import Dict, Any
-# from unstructured.partition.pdf import partition_pdf
-#
-# from New_src.Config import load_config
-# from New_src.utils import extract_year_from_filename, extract_entity_name, get_output_folder, is_already_processed, \
-#     copy_pdf_to_output
-# from New_src.element_processor import process_elements
-# from New_src.file_handler import (
-#     save_elements_data, save_metadata_json, save_metadata_html, save_tables,
-#     load_error_files, update_error_log, generate_summary_report
-# )
-#
-# class PDFProcessingError(Exception):
-#     """Custom exception for PDF processing errors."""
-#
-#     def __init__(self, message: str, file_path: str, original_error: Exception = None):
-#         self.message = message
-#         self.file_path = file_path
-#         self.original_error = original_error
-#         super().__init__(self.message)
-#
-#     def __str__(self):
-#         return f"Error processing {self.file_path}: {self.message}"
-#
-# class PDFProcessor:
-#     def __init__(self, config: Dict[str, Any]):
-#         self.config = config
-#         self.logger = logging.getLogger('pdf_processor')
-#         self.error_log_file = Path(self.config['output_dir']) / 'error_log.json'
-#         self.error_files = load_error_files(self.error_log_file)
-#
-#     def process_pdfs(self):
-#         pdf_files = list(Path(self.config['input_dir']).glob('**/*.pdf'))
-#         successful_files = []
-#         failed_files = []
-#
-#         with ProcessPoolExecutor(max_workers=self.config['num_workers']) as executor:
-#             futures = {executor.submit(self._process_file_with_retry, file_path): file_path for file_path in pdf_files}
-#             for future in tqdm(as_completed(futures), total=len(futures), desc="Processing PDFs"):
-#                 file_path = futures[future]
-#                 try:
-#                     result = future.result()
-#                     if result:
-#                         successful_files.append(str(file_path))
-#                     else:
-#                         failed_files.append(str(file_path))
-#                 except Exception as e:
-#                     self.logger.error(f"Failed to process {file_path}: {e}")
-#                     failed_files.append(str(file_path))
-#
-#         generate_summary_report(successful_files, failed_files, Path(self.config['output_dir']))
-#
-#     def _process_file_with_retry(self, file_path: Path) -> bool:
-#         for attempt in range(self.config['retry_attempts']):
-#             try:
-#                 self._process_file(file_path)
-#                 return True
-#             except PDFProcessingError as e:
-#                 self.logger.warning(f"Error processing {e.file_path} on attempt {attempt + 1}: {e.message}")
-#                 if e.original_error:
-#                     self.logger.debug(f"Original error: {str(e.original_error)}")
-#
-#         self.error_files.append(str(file_path))
-#         update_error_log(self.error_files, self.error_log_file)
-#         return False
-#
-#     def _process_file(self, file_path: Path):
-#         entity_name = extract_entity_name(file_path)
-#         year = extract_year_from_filename(file_path.name)
-#         output_folder = get_output_folder(file_path, Path(self.config['output_dir']))
-#
-#         self.logger.info(f"Processing file: {file_path}")
-#         self.logger.info(f"Extracted entity name: {entity_name}, year: {year}")
-#
-#         if is_already_processed(output_folder):
-#             self.logger.info(f"Skipping already processed file: {file_path}")
-#             return
-#
-#         output_folder.mkdir(parents=True, exist_ok=True)
-#
-#         try:
-#             elements = partition_pdf(
-#                 filename=str(file_path),
-#                 strategy='hi_res',
-#                 infer_table_structure=True,
-#                 include_metadata=True,
-#                 include_page_breaks=True,
-#                 extract_images_in_pdf=False,
-#                 ocr_languages=['eng'],
-#                 url=None
-#             )
-#         except Exception as e:
-#             raise PDFProcessingError("Failed to partition PDF", str(file_path), e)
-#
-#         self.logger.info(f"Finished partitioning file: {file_path}")
-#         all_elements_df, tables, all_elements_metadata = process_elements(elements)
-#
-#         save_elements_data(all_elements_df, output_folder)
-#         save_metadata_json(all_elements_metadata, output_folder)
-#         save_metadata_html(all_elements_metadata, output_folder)
-#         save_tables(tables, output_folder)
-#
-#         copy_pdf_to_output(file_path, output_folder)
-#         self.logger.info(f"Copied original PDF to output folder: {output_folder}")
-#
-#     def process_single_file(self, file_path: Path):
-#         output_folder = file_path.parent
-#
-#         self.logger.info(f"Processing file: {file_path}")
-#
-#         try:
-#             elements = partition_pdf(
-#                 filename=str(file_path),
-#                 strategy='hi_res',
-#                 infer_table_structure=True,
-#                 include_metadata=True,
-#                 include_page_breaks=True,
-#                 extract_images_in_pdf=False,
-#                 ocr_languages=['eng'],
-#                 url=None
-#             )
-#         except Exception as e:
-#             raise PDFProcessingError("Failed to partition PDF", str(file_path), e)
-#
-#         self.logger.info(f"Finished partitioning file: {file_path}")
-#         all_elements_df, tables, all_elements_metadata = process_elements(elements)
-#
-#         save_elements_data(all_elements_df, output_folder)
-#         save_metadata_json(all_elements_metadata, output_folder)
-#         save_metadata_html(all_elements_metadata, output_folder)
-#         save_tables(tables, output_folder)
-#
-#         self.logger.info(f"Processed file: {file_path}")
-# pdf_processor.py
 import logging
 from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from tqdm import tqdm
-from typing import Dict, Any
+from typing import Dict, Any, List
 from unstructured.partition.pdf import partition_pdf
+from unstructured.staging.base import elements_to_json
 
-from New_src.Config import load_config
-from New_src.utils import extract_year_from_filename, extract_entity_name, get_output_folder, is_already_processed, \
-    copy_pdf_to_output
-from New_src.element_processor import process_elements
-from New_src.file_handler import (
+from utils import get_output_folder, is_already_processed, copy_pdf_to_output
+from element_processor import process_elements
+from file_handler import (
     save_elements_data, save_metadata_json, save_metadata_html, save_tables,
     load_error_files, update_error_log, generate_summary_report
 )
 
-class PDFProcessingError(Exception):
-    """Custom exception for PDF processing errors."""
-
-    def __init__(self, message: str, file_path: str, original_error: Exception = None):
-        self.message = message
-        self.file_path = file_path
-        self.original_error = original_error
-        super().__init__(self.message)
-
-    def __str__(self):
-        return f"Error processing {self.file_path}: {self.message}"
+import os
 
 class PDFProcessor:
     def __init__(self, config: Dict[str, Any]):
@@ -171,121 +21,104 @@ class PDFProcessor:
         self.logger = logging.getLogger('pdf_processor')
         self.error_log_file = Path(self.config['output_dir']) / 'error_log.json'
         self.error_files = load_error_files(self.error_log_file)
-        self.parallel_processing = self.config['parallel_processing']
 
     def process_pdfs(self):
         pdf_files = list(Path(self.config['input_dir']).glob('**/*.pdf'))
         successful_files = []
         failed_files = []
 
-        if self.parallel_processing:
+        if self.config['parallel_processing']:
             self.logger.info("Parallel processing enabled")
             with ProcessPoolExecutor(max_workers=self.config['num_workers']) as executor:
-                futures = {executor.submit(self._process_file_with_retry, file_path): file_path for file_path in pdf_files}
-                for future in tqdm(as_completed(futures), total=len(futures), desc="Processing PDFs"):
-                    file_path = futures[future]
-                    try:
-                        result = future.result()
-                        if result:
-                            successful_files.append(str(file_path))
-                        else:
-                            failed_files.append(str(file_path))
-                    except Exception as e:
-                        self.logger.error(f"Failed to process {file_path}: {e}")
-                        failed_files.append(str(file_path))
+                futures = []
+                for i in range(0, len(pdf_files), self.config['batch_size']):
+                    batch = pdf_files[i:i+self.config['batch_size']]
+                    futures.append(executor.submit(self._process_batch, batch))
+                
+                for future in tqdm(as_completed(futures), total=len(futures), desc="Processing PDF batches"):
+                    batch_results = future.result()
+                    successful_files.extend(batch_results['successful'])
+                    failed_files.extend(batch_results['failed'])
         else:
             self.logger.info("Parallel processing disabled")
             for file_path in tqdm(pdf_files, desc="Processing PDFs"):
-                try:
-                    result = self._process_file(file_path)
-                    if result:
-                        successful_files.append(str(file_path))
-                    else:
-                        failed_files.append(str(file_path))
-                except Exception as e:
-                    self.logger.error(f"Failed to process {file_path}: {e}")
+                result = self._process_file(file_path)
+                if result:
+                    successful_files.append(str(file_path))
+                else:
                     failed_files.append(str(file_path))
 
         generate_summary_report(successful_files, failed_files, Path(self.config['output_dir']))
 
-    def _process_file_with_retry(self, file_path: Path) -> bool:
-        for attempt in range(self.config['retry_attempts']):
-            try:
-                self._process_file(file_path)
-                return True
-            except PDFProcessingError as e:
-                self.logger.warning(f"Error processing {e.file_path} on attempt {attempt + 1}: {e.message}")
-                if e.original_error:
-                    self.logger.debug(f"Original error: {str(e.original_error)}")
+    def _process_batch(self, batch: List[Path]) -> Dict[str, List[str]]:
+        successful = []
+        failed = []
+        for file_path in batch:
+            result = self._process_file(file_path)
+            if result:
+                successful.append(str(file_path))
+            else:
+                failed.append(str(file_path))
+        return {'successful': successful, 'failed': failed}
 
-        self.error_files.append(str(file_path))
-        update_error_log(self.error_files, self.error_log_file)
+    def _process_file(self, file_path: Path) -> bool:
+        try:
+            output_dir = Path(self.config['output_dir'])
+            pdf_filename = file_path.name
+
+            # Check if the PDF already exists in any subfolder of the output directory
+            if self._pdf_exists_in_output(output_dir, pdf_filename):
+                self.logger.info(f"Skipping already processed file: {file_path}")
+                return True  # Return True to indicate successful handling (skipping)
+
+            output_folder = get_output_folder(file_path, output_dir)
+            output_folder.mkdir(parents=True, exist_ok=True)
+
+            elements = partition_pdf(
+                filename=str(file_path),
+                strategy='hi_res',
+                hi_res_model_name="yolox",
+                infer_table_structure=True,
+                include_metadata=True,
+                include_page_breaks=True,
+                extract_images_in_pdf=False,
+                ocr_languages=['eng'],
+                use_ocr_for_pages_with_text=False,
+                max_partition=1000,  # Adjust based on your needs
+            )
+
+            all_elements_df, tables, all_elements_metadata = process_elements(elements)
+
+            save_elements_data(all_elements_df, output_folder)
+            save_metadata_json(all_elements_metadata, output_folder)
+            save_metadata_html(all_elements_metadata, output_folder)
+            save_tables(tables, output_folder)
+
+            # Save raw JSON output
+            raw_json_path = output_folder / "raw_elements.json"
+            elements_to_json(elements, filename=str(raw_json_path))
+
+            copy_pdf_to_output(file_path, output_folder)
+            self.logger.info(f"Processed file: {file_path}")
+            return True
+        except Exception as e:
+            self.logger.error(f"Error processing {file_path}: {str(e)}")
+            return False
+
+    def _pdf_exists_in_output(self, output_dir: Path, pdf_filename: str) -> bool:
+        for root, _, files in os.walk(output_dir):
+            if pdf_filename in files:
+                return True
         return False
 
-    def _process_file(self, file_path: Path):
-        entity_name = extract_entity_name(file_path)
-        year = extract_year_from_filename(file_path.name)
-        output_folder = get_output_folder(file_path, Path(self.config['output_dir']))
-
-        self.logger.info(f"Processing file: {file_path}")
-        self.logger.info(f"Extracted entity name: {entity_name}, year: {year}")
-
-        if is_already_processed(output_folder):
-            self.logger.info(f"Skipping already processed file: {file_path}")
-            return
-
-        output_folder.mkdir(parents=True, exist_ok=True)
-
-        try:
-            elements = partition_pdf(
-                filename=str(file_path),
-                strategy='hi_res',
-                hi_res_model_name="yolox",
-                infer_table_structure=True,
-                include_metadata=True,
-                include_page_breaks=True,
-                extract_images_in_pdf=False,
-                url=None
-            )
-        except Exception as e:
-            raise PDFProcessingError("Failed to partition PDF", str(file_path), e)
-
-        self.logger.info(f"Finished partitioning file: {file_path}")
-        all_elements_df, tables, all_elements_metadata = process_elements(elements)
-
-        save_elements_data(all_elements_df, output_folder)
-        save_metadata_json(all_elements_metadata, output_folder)
-        save_metadata_html(all_elements_metadata, output_folder)
-        save_tables(tables, output_folder)
-
-        copy_pdf_to_output(file_path, output_folder)
-        self.logger.info(f"Copied original PDF to output folder: {output_folder}")
+    def _output_files_exist(self, output_folder: Path) -> bool:
+        required_files = [
+            "elements_data.csv",
+            "metadata.json",
+            "metadata.html",
+            "raw_elements.json",
+        ]
+        return all((output_folder / file).exists() for file in required_files)
 
     def process_single_file(self, file_path: Path):
-        output_folder = file_path.parent
-
-        self.logger.info(f"Processing file: {file_path}")
-
-        try:
-            elements = partition_pdf(
-                filename=str(file_path),
-                strategy='hi_res',
-                infer_table_structure=True,
-                hi_res_model_name="yolox",
-                include_metadata=True,
-                include_page_breaks=True,
-                extract_images_in_pdf=False,
-                url=None
-            )
-        except Exception as e:
-            raise PDFProcessingError("Failed to partition PDF", str(file_path), e)
-
-        self.logger.info(f"Finished partitioning file: {file_path}")
-        all_elements_df, tables, all_elements_metadata = process_elements(elements)
-
-        save_elements_data(all_elements_df, output_folder)
-        save_metadata_json(all_elements_metadata, output_folder)
-        save_metadata_html(all_elements_metadata, output_folder)
-        save_tables(tables, output_folder)
-
-        self.logger.info(f"Processed file: {file_path}")
+        self._process_file(file_path)
