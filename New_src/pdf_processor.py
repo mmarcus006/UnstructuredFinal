@@ -1,21 +1,28 @@
 import logging
-from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor, as_completed
+from pathlib import Path
+from typing import Any, Dict, List
+
 from tqdm import tqdm
-from typing import Dict, Any, List
 from unstructured.partition.pdf import partition_pdf
 from unstructured.staging.base import elements_to_json
 
-from utils import get_output_folder, is_already_processed, copy_pdf_to_output
 from element_processor import process_elements
 from file_handler import (
-    save_elements_data, save_metadata_json, save_metadata_html, save_tables,
-    load_error_files, update_error_log, generate_summary_report
+    generate_summary_report,
+    load_error_files,
+    save_elements_data,
+    save_metadata_html,
+    save_metadata_json,
+    save_tables,
+    update_error_log,
 )
+from utils import copy_pdf_to_output, get_output_folder, is_already_processed
 
-import os
 
 class PDFProcessor:
+    """A class for processing PDF files."""
+
     def __init__(self, config: Dict[str, Any]):
         self.config = config
         self.logger = logging.getLogger('pdf_processor')
@@ -106,10 +113,7 @@ class PDFProcessor:
             return False
 
     def _pdf_exists_in_output(self, output_dir: Path, pdf_filename: str) -> bool:
-        for root, _, files in os.walk(output_dir):
-            if pdf_filename in files:
-                return True
-        return False
+        return any(output_dir.rglob(pdf_filename))
 
     def _output_files_exist(self, output_folder: Path) -> bool:
         required_files = [

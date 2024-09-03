@@ -1,0 +1,66 @@
+# Ignore specific file types
+*.pdf
+*.csv
+*.json
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# Ignore log directories
+/logs
+/log
+
+# Ignore virtual environment directories
+/venv
+/.venv
+/.conda
+/env
+/.env
+
+# Ignore Python cache
+/__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Ignore IntelliJ IDEA files and folders
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Ignore Detectron2
+detectron2/
+*detectron2*
+
+# Ignore build and distribution directories
+/build/
+/dist/
+*.egg-info/
+
+# Ignore version control systems
+.git/
+.hg/
+.svn/
+
+# Ignore OS generated files
+.DS_Store
+Thumbs.db
+
+# Ignore node modules and package files
+/node_modules/
+package-lock.json
+yarn.lock
+
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Existing ignores
+/samples
+/*ignore*
+Scratches/
+
+# Add directories or file patterns to ignore during indexing (e.g. foo/ or *.csv)

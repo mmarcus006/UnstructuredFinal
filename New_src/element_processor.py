@@ -49,7 +49,7 @@ def extract_element_metadata(element: Any) -> Dict[str, Any]:
     return metadata
 
 def process_elements(elements: List[Any]) -> Tuple[pd.DataFrame, List[Any], List[Dict[str, Any]]]:
-    all_elements_df = pd.DataFrame()
+    all_elements_data = []
     tables = []
     all_elements_metadata = []
 
@@ -58,20 +58,20 @@ def process_elements(elements: List[Any]) -> Tuple[pd.DataFrame, List[Any], List
         all_elements_metadata.append(element_metadata)
 
         if element.metadata:
-            new_row = pd.DataFrame({
-                "Page Number": [getattr(element.metadata, 'page_number', None)],
-                "Element ID": [getattr(element, 'id', None)],
-                "Parent Element": [getattr(element.metadata, 'parent_id', None)],
-                "Coordinates": [getattr(element.metadata, 'coordinates', None)],
-                "Detection Class Probability": [getattr(element.metadata, 'detection_class_prob', None)],
-                "Category": [getattr(element, 'category', 'Unknown')],
-                "Text": [getattr(element, 'text', '')],
-                "Table as HTML": [getattr(element.metadata, 'text_as_html', None) if getattr(element, 'category',
-                                                                                            '').lower() == 'table' else None]
-            })
-            all_elements_df = pd.concat([all_elements_df, new_row], ignore_index=True)
+            new_row = {
+                "Page Number": getattr(element.metadata, 'page_number', None),
+                "Element ID": getattr(element, 'id', None),
+                "Parent Element": getattr(element.metadata, 'parent_id', None),
+                "Coordinates": getattr(element.metadata, 'coordinates', None),
+                "Detection Class Probability": getattr(element.metadata, 'detection_class_prob', None),
+                "Category": getattr(element, 'category', 'Unknown'),
+                "Text": getattr(element, 'text', ''),
+                "Table as HTML": getattr(element.metadata, 'text_as_html', None) if getattr(element, 'category', '').lower() == 'table' else None
+            }
+            all_elements_data.append(new_row)
 
         if element.category == "Table":
             tables.append(element)
 
+    all_elements_df = pd.DataFrame(all_elements_data)
     return all_elements_df, tables, all_elements_metadata

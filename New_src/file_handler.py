@@ -6,6 +6,8 @@ import pandas as pd
 import logging
 from collections import defaultdict
 import html
+import concurrent.futures
+from io import StringIO
 
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
@@ -161,82 +163,86 @@ def save_tables(tables: List[Any], output_folder: Path):
         parent_id = getattr(table.metadata, 'parent_id', 'unknown_parent')
         grouped_tables[parent_id].append(table)
 
-    for parent_id, table_group in grouped_tables.items():
-        try:
-            combined_html_content = ""
-            page_numbers = set()
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = []
+        for parent_id, table_group in grouped_tables.items():
+            futures.append(executor.submit(process_table_group, parent_id, table_group, output_folder))
 
-            for i, table in enumerate(table_group):
-                table_html = getattr(table.metadata, 'text_as_html', None)
-                page_number = getattr(table.metadata, 'page_number', f'unknown_page_{i}')
-                page_numbers.add(str(page_number))
+        for future in concurrent.futures.as_completed(futures):
+            try:
+                future.result()
+            except Exception as e:
+                logger.error(f"Error processing table group: {str(e)}", exc_info=True)
 
-                if table_html is None:
-                    logger.warning(f"No HTML data for table in group {parent_id} on page {page_number}. Skipping.")
-                    continue
+def process_table_group(parent_id: str, table_group: List[Any], output_folder: Path):
+    try:
+        combined_html_content = ""
+        page_numbers = set()
 
-                # Append HTML content for combined HTML file
-                combined_html_content += f"<h2>Table Part {i + 1} (Page {page_number})</h2>\n{table_html}\n"
+        for i, table in enumerate(table_group):
+            table_html = getattr(table.metadata, 'text_as_html', None)
+            page_number = getattr(table.metadata, 'page_number', f'unknown_page_{i}')
+            page_numbers.add(str(page_number))
 
-                # Process and save individual CSV file
-                try:
-                    tables_df = pd.read_html(table_html)
-                    if tables_df:
-                        current_df = tables_df[0]
+            if table_html is None:
+                logger.warning(f"No HTML data for table in group {parent_id} on page {page_number}. Skipping.")
+                continue
 
-                        logger.info(f"Table {i} in group {parent_id} has shape: {current_df.shape}")
+            combined_html_content += f"<h2>Table Part {i + 1} (Page {page_number})</h2>\n{table_html}\n"
 
-                        # Add metadata columns to individual table
-                        current_df["Parent ID"] = parent_id
-                        current_df["Page Number"] = page_number
+            try:
+                tables_df = pd.read_html(StringIO(table_html))  # Use StringIO to avoid FutureWarning
+                if tables_df:
+                    current_df = tables_df[0]
+                    logger.info(f"Table {i} in group {parent_id} has shape: {current_df.shape}")
+                    current_df["Parent ID"] = str(parent_id) if parent_id is not None else "unknown"
+                    current_df["Page Number"] = page_number
+                    csv_filename = f"table_{parent_id or 'unknown'}_page{page_number}_part{i + 1}.csv"
+                    csv_path = output_folder / csv_filename
+                    current_df.to_csv(csv_path, index=False)
+                    logger.info(f"Saved individual CSV table to {csv_path}")
+                else:
+                    logger.warning(f"No tables found in HTML for table in group {parent_id} on page {page_number}")
+            except ValueError as e:
+                logger.error(f"Error parsing HTML table: {str(e)}")
+                logger.debug(f"Problematic HTML content: {table_html}")
 
-                        # Save individual CSV
-                        csv_filename = f"table_{parent_id}_page{page_number}_part{i + 1}.csv"
-                        csv_path = output_folder / csv_filename
-                        current_df.to_csv(csv_path, index=False)
-                        logger.info(f"Saved individual CSV table to {csv_path}")
-                    else:
-                        logger.warning(f"No tables found in HTML for table in group {parent_id} on page {page_number}")
-                except ValueError as e:
-                    logger.error(f"Error parsing HTML table: {str(e)}")
-                    logger.debug(f"Problematic HTML content: {table_html}")
+        if combined_html_content:
+            html_content = f"""
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Combined Table - Parent ID: {html.escape(str(parent_id) if parent_id is not None else "unknown")}</title>
+                <style>
+                    body {{ font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }}
+                    h1 {{ color: #333; }}
+                    h2 {{ color: #666; }}
+                    table {{ border-collapse: collapse; width: 100%; margin-bottom: 20px; }}
+                    th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
+                    th {{ background-color: #f2f2f2; }}
+                </style>
+            </head>
+            <body>
+                <h1>Combined Table - Parent ID: {html.escape(str(parent_id) if parent_id is not None else "unknown")}</h1>
+                <p>Pages: {', '.join(sorted(page_numbers))}</p>
+                {combined_html_content}
+            </body>
+            </html>
+            """
 
-            # Create and save combined HTML file
-            if combined_html_content:
-                html_content = f"""
-                <!DOCTYPE html>
-                <html lang="en">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>Combined Table - Parent ID: {html.escape(parent_id)}</title>
-                    <style>
-                        body {{ font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }}
-                        h1 {{ color: #333; }}
-                        h2 {{ color: #666; }}
-                        table {{ border-collapse: collapse; width: 100%; margin-bottom: 20px; }}
-                        th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
-                        th {{ background-color: #f2f2f2; }}
-                    </style>
-                </head>
-                <body>
-                    <h1>Combined Table - Parent ID: {html.escape(parent_id)}</h1>
-                    <p>Pages: {', '.join(sorted(page_numbers))}</p>
-                    {combined_html_content}
-                </body>
-                </html>
-                """
+            html_filename = f"table_{parent_id or 'unknown'}_pages{'_'.join(sorted(page_numbers))}.html"
+            html_path = output_folder / html_filename
+            with open(html_path, 'w', encoding='utf-8') as f:
+                f.write(html_content)
+            logger.info(f"Saved combined HTML table to {html_path}")
+        else:
+            logger.warning(f"No valid data to save for table group {parent_id}")
 
-                html_filename = f"table_{parent_id}_pages{'_'.join(sorted(page_numbers))}.html"
-                html_path = output_folder / html_filename
-                with open(html_path, 'w', encoding='utf-8') as f:
-                    f.write(html_content)
-                logger.info(f"Saved combined HTML table to {html_path}")
-            else:
-                logger.warning(f"No valid data to save for table group {parent_id}")
-
-        except Exception as e:
-            logger.error(f"Error processing table group {parent_id}: {str(e)}", exc_info=True)
+    except Exception as e:
+        logger.error(f"Error processing table group {parent_id}: {str(e)}", exc_info=True)
+        raise
 
 def load_error_files(error_log_file: Path) -> List[str]:
     if error_log_file.exists():

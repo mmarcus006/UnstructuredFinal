@@ -1,6 +1,7 @@
 input_dir: "C:\\Users\\Miller\\OneDrive - franchiseportal.io\\WISCONSINFDDs\\Items"
 output_dir: "C:\\Users\\Miller\\OneDrive - franchiseportal.io\\WisconsinFDD_Unstructured"
-num_workers: 8  # Adjust based on your CPU cores, typically num_cpu_cores - 1
+num_workers: 12  # Adjust based on your CPU cores, typically num_cpu_cores - 1
 retry_attempts: 3
 parallel_processing: false
-batch_size: 4  # Process PDFs in batches to manage memory usage
+batch_size: 3  # Process PDFs in batches to manage memory usage
+log_level: "INFO"
