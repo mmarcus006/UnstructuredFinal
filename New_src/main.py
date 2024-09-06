@@ -4,6 +4,9 @@ from pdf_processor import PDFProcessor
 from Config import load_config
 from log_setup import setup_logging
 import multiprocessing
+from pillow_heif import register_heif_opener
+import cv2
+import unstructured_pytesseract
 
 def main():
     try:
